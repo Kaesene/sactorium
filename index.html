@@ -339,8 +339,12 @@
                                 <span id="result-freight-insurance">R$ 0,00</span>
                             </div>
                             <div class="cost-item">
-                                <span>📊 Impostos Brasil:</span>
+                                <span>📊 Impostos NCM (<span id="selected-ncm-code-result">-</span>):</span>
                                 <span id="result-taxes">R$ 0,00</span>
+                            </div>
+                            <div class="tax-breakdown-detail" id="tax-breakdown-detail" style="display: none;">
+                                <h5>📋 Detalhamento dos Impostos:</h5>
+                                <div id="tax-detail-list"></div>
                             </div>
                             <div class="cost-item">
                                 <span>💼 Despesas Extras:</span>
@@ -498,22 +502,101 @@
                             <input type="text" id="new-ncm-description" required placeholder="Descrição do produto...">
                         </div>
                         
-                        <div class="form-row">
+                        <!-- Tax Configuration Section -->
+                        <h4>💰 Configuração de Impostos (até 5 tipos)</h4>
+                        
+                        <!-- Tax 1 -->
+                        <div class="tax-config-row">
                             <div class="form-group">
-                                <label>Imposto Importação (%):</label>
-                                <input type="number" id="new-ncm-import-tax" step="0.01" value="16" min="0" max="100">
+                                <label>Imposto 1 - Nome:</label>
+                                <input type="text" id="new-ncm-tax1-name" placeholder="Ex: Imposto Importação" value="Imposto Importação">
                             </div>
                             <div class="form-group">
-                                <label>IPI (%):</label>
-                                <input type="number" id="new-ncm-ipi" step="0.01" value="0" min="0" max="100">
+                                <label>Taxa (%):</label>
+                                <input type="number" id="new-ncm-tax1-rate" step="0.01" value="16" min="0" max="100">
                             </div>
                             <div class="form-group">
-                                <label>PIS/COFINS (%):</label>
-                                <input type="number" id="new-ncm-pis-cofins" step="0.01" value="9.25" min="0" max="50">
+                                <label>Tipo:</label>
+                                <select id="new-ncm-tax1-type">
+                                    <option value="percent">Percentual</option>
+                                    <option value="fixed">Valor Fixo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax 2 -->
+                        <div class="tax-config-row">
+                            <div class="form-group">
+                                <label>Imposto 2 - Nome:</label>
+                                <input type="text" id="new-ncm-tax2-name" placeholder="Ex: IPI" value="IPI">
                             </div>
                             <div class="form-group">
-                                <label>ICMS (%):</label>
-                                <input type="number" id="new-ncm-icms" step="0.01" value="18" min="0" max="30">
+                                <label>Taxa (%):</label>
+                                <input type="number" id="new-ncm-tax2-rate" step="0.01" value="0" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo:</label>
+                                <select id="new-ncm-tax2-type">
+                                    <option value="percent">Percentual</option>
+                                    <option value="fixed">Valor Fixo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax 3 -->
+                        <div class="tax-config-row">
+                            <div class="form-group">
+                                <label>Imposto 3 - Nome:</label>
+                                <input type="text" id="new-ncm-tax3-name" placeholder="Ex: PIS/COFINS" value="PIS/COFINS">
+                            </div>
+                            <div class="form-group">
+                                <label>Taxa (%):</label>
+                                <input type="number" id="new-ncm-tax3-rate" step="0.01" value="9.25" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo:</label>
+                                <select id="new-ncm-tax3-type">
+                                    <option value="percent">Percentual</option>
+                                    <option value="fixed">Valor Fixo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax 4 -->
+                        <div class="tax-config-row">
+                            <div class="form-group">
+                                <label>Imposto 4 - Nome:</label>
+                                <input type="text" id="new-ncm-tax4-name" placeholder="Ex: ICMS" value="ICMS">
+                            </div>
+                            <div class="form-group">
+                                <label>Taxa (%):</label>
+                                <input type="number" id="new-ncm-tax4-rate" step="0.01" value="18" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo:</label>
+                                <select id="new-ncm-tax4-type">
+                                    <option value="percent">Percentual</option>
+                                    <option value="fixed">Valor Fixo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax 5 -->
+                        <div class="tax-config-row">
+                            <div class="form-group">
+                                <label>Imposto 5 - Nome:</label>
+                                <input type="text" id="new-ncm-tax5-name" placeholder="Ex: Taxa Extra (opcional)">
+                            </div>
+                            <div class="form-group">
+                                <label>Taxa (%):</label>
+                                <input type="number" id="new-ncm-tax5-rate" step="0.01" value="0" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo:</label>
+                                <select id="new-ncm-tax5-type">
+                                    <option value="percent">Percentual</option>
+                                    <option value="fixed">Valor Fixo</option>
+                                </select>
                             </div>
                         </div>
                         
@@ -546,9 +629,7 @@
                                     <th>Código</th>
                                     <th>Descrição</th>
                                     <th>Categoria</th>
-                                    <th>II%</th>
-                                    <th>IPI%</th>
-                                    <th>ICMS%</th>
+                                    <th>Impostos Configurados</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>

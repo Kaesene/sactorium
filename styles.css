@@ -1018,6 +1018,80 @@ body {
     }
 }
 
+/* Tax Configuration Styles */
+.tax-config-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.tax-config-row h4 {
+    grid-column: 1 / -1;
+    color: #495057;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 5px;
+}
+
+.tax-list {
+    font-size: 12px;
+    color: #666;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tax-breakdown-detail {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.tax-breakdown-detail h5 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.tax-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 13px;
+}
+
+.tax-detail-item:last-child {
+    border-bottom: none;
+}
+
+.tax-detail-item span:first-child {
+    font-weight: 600;
+    color: #495057;
+}
+
+.tax-detail-item span:last-child {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Responsive adjustments for tax config */
+@media (max-width: 768px) {
+    .tax-config-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
 /* Sales table */
 .sales-table {
     width: 100%;

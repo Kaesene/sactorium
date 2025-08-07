@@ -531,11 +531,6 @@ function calculateImport() {
     const totalCifUSD = cifData.totalCIF;
     const usdRate = parseFloat(document.getElementById('import-usd-rate').value) || 5.50;
     
-    const importTax = parseFloat(document.getElementById('import-tax').value) || 14;
-    const ipi = parseFloat(document.getElementById('import-ipi').value) || 15;
-    const pisCofins = parseFloat(document.getElementById('import-pis-cofins').value) || 9.25;
-    const icms = parseFloat(document.getElementById('import-icms').value) || 18;
-    
     const customsBroker = parseFloat(document.getElementById('import-customs-broker').value) || 500;
     const otherCosts = parseFloat(document.getElementById('import-other-costs').value) || 0;
     
@@ -548,26 +543,55 @@ function calculateImport() {
         return;
     }
     
+    // Verificar se há NCM selecionado
+    if (!selectedNCM) {
+        alert('Por favor, selecione um NCM para calcular os impostos corretos');
+        return;
+    }
+    
     // Cálculos baseados no CIF
     const totalCifBrl = totalCifUSD * usdRate;
     const cifInsuranceBrl = cifData.insurance * usdRate;
     const cifFreightBrl = cifData.freight * usdRate;
     
     // Base de cálculo dos impostos = CIF em reais
-    const taxBase = totalCifBrl;
+    let taxBase = totalCifBrl;
+    let totalTaxes = 0;
+    const taxDetails = [];
     
-    // Cálculo dos impostos
-    const importTaxValue = taxBase * (importTax / 100);
-    const ipiBase = taxBase + importTaxValue;
-    const ipiValue = ipiBase * (ipi / 100);
-    const pisCofinsBase = taxBase + importTaxValue + ipiValue;
-    const pisCofinsValue = pisCofinsBase * (pisCofins / 100);
-    
-    // ICMS (calculado sobre toda a base + impostos anteriores)
-    const icmsBase = pisCofinsBase + pisCofinsValue;
-    const icmsValue = icmsBase * (icms / 100);
-    
-    const totalTaxes = importTaxValue + ipiValue + pisCofinsValue + icmsValue;
+    // Calcular impostos baseados no NCM selecionado
+    if (selectedNCM.taxes) {
+        for (let i = 1; i <= 5; i++) {
+            const tax = selectedNCM.taxes[`tax${i}`];
+            if (tax && tax.name && tax.rate > 0) {
+                let taxValue = 0;
+                if (tax.type === 'percent') {
+                    taxValue = taxBase * (tax.rate / 100);
+                } else if (tax.type === 'fixed') {
+                    taxValue = tax.rate * quantity; // Valor fixo por unidade
+                }
+                
+                totalTaxes += taxValue;
+                taxDetails.push({
+                    name: tax.name,
+                    rate: tax.rate,
+                    type: tax.type,
+                    value: taxValue,
+                    base: taxBase
+                });
+                
+                // Para impostos em cascata (cada imposto pode aumentar a base do próximo)
+                // Comentado por enquanto - pode ser ativado se necessário
+                // taxBase += taxValue;
+            }
+        }
+    } else {
+        // Fallback para estrutura antiga (compatibilidade)
+        const importTaxValue = taxBase * ((selectedNCM.import_tax || 0) / 100);
+        const ipiValue = taxBase * ((selectedNCM.ipi || 0) / 100);
+        const icmsValue = taxBase * ((selectedNCM.icms || 0) / 100);
+        totalTaxes = importTaxValue + ipiValue + icmsValue;
+    }
     
     // Despesas extras
     const extraCosts = customsBroker + otherCosts;
@@ -593,6 +617,23 @@ function calculateImport() {
     document.getElementById('result-extra-costs').textContent = formatCurrency(extraCosts);
     document.getElementById('result-total-cost').textContent = formatCurrency(totalCost);
     document.getElementById('result-unit-cost').textContent = formatCurrency(unitCost);
+    
+    // Exibir código NCM no resultado
+    document.getElementById('selected-ncm-code-result').textContent = selectedNCM.code;
+    
+    // Exibir detalhamento dos impostos
+    if (taxDetails.length > 0) {
+        const detailList = document.getElementById('tax-detail-list');
+        detailList.innerHTML = taxDetails.map(tax => `
+            <div class="tax-detail-item">
+                <span>${tax.name}:</span>
+                <span>${tax.rate}${tax.type === 'percent' ? '%' : ' R$'} = ${formatCurrency(tax.value)}</span>
+            </div>
+        `).join('');
+        document.getElementById('tax-breakdown-detail').style.display = 'block';
+    } else {
+        document.getElementById('tax-breakdown-detail').style.display = 'none';
+    }
     
     document.getElementById('result-direct-price').textContent = formatCurrency(directPrice);
     document.getElementById('result-direct-profit').textContent = formatCurrency(directProfit);
@@ -845,20 +886,36 @@ function updateNCMTable() {
     
     const ncmsToShow = filteredNCMs.length > 0 ? filteredNCMs : allNCMs;
     
-    tbody.innerHTML = ncmsToShow.map(ncm => `
-        <tr>
-            <td>${ncm.code}</td>
-            <td title="${ncm.description}">${ncm.description.substring(0, 40)}${ncm.description.length > 40 ? '...' : ''}</td>
-            <td>${ncm.category}</td>
-            <td>${ncm.import_tax}%</td>
-            <td>${ncm.ipi}%</td>
-            <td>${ncm.icms}%</td>
-            <td>
-                <button class="btn btn-sm btn-warning" onclick="editNCM('${ncm.code}')">✏️</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteNCM('${ncm.code}')">🗑️</button>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = ncmsToShow.map(ncm => {
+        // Gerar lista de impostos configurados
+        let taxList = '';
+        if (ncm.taxes) {
+            const activeTaxes = [];
+            for (let i = 1; i <= 5; i++) {
+                const tax = ncm.taxes[`tax${i}`];
+                if (tax && tax.name && tax.rate > 0) {
+                    activeTaxes.push(`${tax.name}: ${tax.rate}${tax.type === 'percent' ? '%' : ' R$'}`);
+                }
+            }
+            taxList = activeTaxes.length > 0 ? activeTaxes.join(' | ') : 'Nenhum imposto configurado';
+        } else {
+            // Compatibilidade com estrutura antiga
+            taxList = `II: ${ncm.import_tax || 0}% | IPI: ${ncm.ipi || 0}% | ICMS: ${ncm.icms || 0}%`;
+        }
+        
+        return `
+            <tr>
+                <td>${ncm.code}</td>
+                <td title="${ncm.description}">${ncm.description.substring(0, 30)}${ncm.description.length > 30 ? '...' : ''}</td>
+                <td>${ncm.category}</td>
+                <td title="${taxList}" class="tax-list">${taxList.substring(0, 50)}${taxList.length > 50 ? '...' : ''}</td>
+                <td>
+                    <button class="btn btn-sm btn-warning" onclick="editNCM('${ncm.code}')">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteNCM('${ncm.code}')">🗑️</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 // Atualizar filtro de categorias
@@ -905,10 +962,21 @@ async function handleNCMSubmit(e) {
         code: document.getElementById('new-ncm-code').value,
         description: document.getElementById('new-ncm-description').value,
         category: document.getElementById('new-ncm-category').value,
-        import_tax: document.getElementById('new-ncm-import-tax').value,
-        ipi: document.getElementById('new-ncm-ipi').value,
-        pis_cofins: document.getElementById('new-ncm-pis-cofins').value,
-        icms: document.getElementById('new-ncm-icms').value,
+        tax1_name: document.getElementById('new-ncm-tax1-name').value,
+        tax1_rate: document.getElementById('new-ncm-tax1-rate').value,
+        tax1_type: document.getElementById('new-ncm-tax1-type').value,
+        tax2_name: document.getElementById('new-ncm-tax2-name').value,
+        tax2_rate: document.getElementById('new-ncm-tax2-rate').value,
+        tax2_type: document.getElementById('new-ncm-tax2-type').value,
+        tax3_name: document.getElementById('new-ncm-tax3-name').value,
+        tax3_rate: document.getElementById('new-ncm-tax3-rate').value,
+        tax3_type: document.getElementById('new-ncm-tax3-type').value,
+        tax4_name: document.getElementById('new-ncm-tax4-name').value,
+        tax4_rate: document.getElementById('new-ncm-tax4-rate').value,
+        tax4_type: document.getElementById('new-ncm-tax4-type').value,
+        tax5_name: document.getElementById('new-ncm-tax5-name').value,
+        tax5_rate: document.getElementById('new-ncm-tax5-rate').value,
+        tax5_type: document.getElementById('new-ncm-tax5-type').value,
         notes: document.getElementById('new-ncm-notes').value
     };
     
