@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sactorium Desktop</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>📊 Sactorium Desktop</h1>
+            <p>Sistema de gestão de produtos e vendas</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="products">📦 Gestão de Produtos</button>
+            <button class="tab-btn" data-tab="calculator">💰 Calculadora ML</button>
+        </nav>
+
+        <!-- Products Tab -->
+        <div class="tab-content active" id="products-tab">
+            <div class="main-layout">
+                <!-- Sidebar with actions -->
+                <aside class="sidebar">
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="showAddProduct()">
+                            ➕ Cadastrar Produto
+                        </button>
+                        <button class="btn btn-secondary" onclick="importProducts()">
+                            📋 Importar Produtos
+                        </button>
+                        <button class="btn btn-info" onclick="showImportInstructions()">
+                            ❓ Ajuda Importação
+                        </button>
+                        <hr>
+                        <button class="btn btn-success" onclick="registerSale()">
+                            💰 Registrar Venda
+                        </button>
+                        <button class="btn btn-info" onclick="showSales()">
+                            📈 Ver Vendas
+                        </button>
+                        <hr>
+                        <button class="btn btn-secondary" onclick="refreshProducts()">
+                            🔄 Atualizar Lista
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Main content area -->
+                <main class="main-content">
+                    <!-- Margin selector -->
+                    <div class="margin-selector">
+                        <label>
+                            <input type="radio" name="margin" value="30" checked>
+                            📊 TABELA 30% MARGEM
+                        </label>
+                        <label>
+                            <input type="radio" name="margin" value="40">
+                            📈 TABELA 40% MARGEM
+                        </label>
+                    </div>
+
+                    <!-- Products table -->
+                    <div class="table-container">
+                        <table class="products-table" id="products-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nome do Produto</th>
+                                    <th>Preço Custo (R$)</th>
+                                    <th>Preço Final (R$)</th>
+                                    <th>Estoque</th>
+                                    <th>Categoria</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody">
+                                <!-- Products will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+
+                <!-- Product info panel -->
+                <aside class="info-panel">
+                    <h3>📋 Informações</h3>
+                    <div id="product-info">
+                        <p>Selecione um produto para ver detalhes</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- Calculator Tab -->
+        <div class="tab-content" id="calculator-tab">
+            <div class="calculator-layout">
+                <h2>💰 Calculadora de Preços - Mercado Livre</h2>
+                
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label>Produto:</label>
+                        <select id="ml-product-select">
+                            <option value="">Selecione um produto...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Custo (R$):</label>
+                        <input type="number" id="ml-cost" step="0.01" readonly>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Valor Final Venda (R$):</label>
+                        <input type="number" id="ml-price" step="0.01" placeholder="0.00">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Envio (R$):</label>
+                        <input type="number" id="ml-shipping" step="0.01" value="0.00">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Imposto (%):</label>
+                        <select id="ml-tax">
+                            <option value="4">4%</option>
+                            <option value="7">7%</option>
+                            <option value="10">10%</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="calculateML()">📊 Calcular Lucro</button>
+                
+                <div class="results-container">
+                    <div class="result-card">
+                        <h3>🔴 OPÇÃO TAXA 17%</h3>
+                        <div id="result-17" class="result-content">
+                            Selecione um produto para calcular
+                        </div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>🔵 OPÇÃO TAXA 12%</h3>
+                        <div id="result-12" class="result-content">
+                            Selecione um produto para calcular
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('product-modal')">&times;</span>
+            <h2 id="modal-title">Cadastrar Produto</h2>
+            <form id="product-form">
+                <input type="hidden" id="product-id">
+                
+                <div class="form-group">
+                    <label>Nome do Produto:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Preço de Custo (R$):</label>
+                    <input type="number" id="product-cost" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Estoque:</label>
+                    <input type="number" id="product-stock" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Categoria:</label>
+                    <input type="text" id="product-category">
+                </div>
+                
+                <div class="form-group">
+                    <label>NCM:</label>
+                    <input type="text" id="product-ncm">
+                </div>
+                
+                <div class="form-group">
+                    <label>Fabricante:</label>
+                    <input type="text" id="product-manufacturer">
+                </div>
+                
+                <div class="form-group">
+                    <label>Descrição:</label>
+                    <textarea id="product-description" rows="4"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('product-modal')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sales Modal -->
+    <div class="modal" id="sales-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('sales-modal')">&times;</span>
+            <h2>📈 Histórico de Vendas</h2>
+            <div class="table-container">
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Produto</th>
+                            <th>Qtd</th>
+                            <th>Preço Unit.</th>
+                            <th>Total</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-tbody">
+                        <!-- Sales will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

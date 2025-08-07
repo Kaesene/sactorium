@@ -1,0 +1,91 @@
+{
+  "produtos": [
+    {
+      "id": 1,
+      "nome": "KIT ROSCA POSTICA M3 X 0,5",
+      "preco_custo": 35.7,
+      "estoque": 50,
+      "descricao": "",
+      "categoria": "FERRAMENTAS",
+      "ncm": "82074010",
+      "fabricante": "NINGBO",
+      "data_cadastro": "2025-07-22T13:36:47.457Z",
+      "data_modificacao": "2025-07-22T13:36:47.458Z"
+    },
+    {
+      "id": 2,
+      "nome": "KIT ROSCA POSTICA M4 X 0,7",
+      "preco_custo": 35.7,
+      "estoque": 100,
+      "descricao": "",
+      "categoria": "FERRAMENTAS",
+      "ncm": "82074010",
+      "fabricante": "NINGBO",
+      "data_cadastro": "2025-07-22T13:36:47.459Z",
+      "data_modificacao": "2025-07-22T13:36:47.459Z"
+    },
+    {
+      "id": 3,
+      "nome": "Produto A",
+      "preco_custo": 15.5,
+      "estoque": 10,
+      "descricao": "",
+      "categoria": "",
+      "ncm": "",
+      "fabricante": "",
+      "data_cadastro": "2025-07-22T13:36:47.460Z",
+      "data_modificacao": "2025-07-22T13:36:47.460Z"
+    },
+    {
+      "id": 4,
+      "nome": "Produto B",
+      "preco_custo": 30,
+      "estoque": 5,
+      "descricao": "",
+      "categoria": "",
+      "ncm": "",
+      "fabricante": "",
+      "data_cadastro": "2025-07-22T13:36:47.460Z",
+      "data_modificacao": "2025-07-22T13:36:47.460Z"
+    },
+    {
+      "id": 5,
+      "nome": "Produto C",
+      "preco_custo": 8.75,
+      "estoque": 20,
+      "descricao": "",
+      "categoria": "",
+      "ncm": "",
+      "fabricante": "",
+      "data_cadastro": "2025-07-22T13:36:47.460Z",
+      "data_modificacao": "2025-07-22T13:36:47.460Z"
+    },
+    {
+      "id": 6,
+      "nome": "Produto D",
+      "preco_custo": 100,
+      "estoque": 3,
+      "descricao": "",
+      "categoria": "",
+      "ncm": "",
+      "fabricante": "",
+      "data_cadastro": "2025-07-22T13:36:47.460Z",
+      "data_modificacao": "2025-07-22T13:36:47.460Z"
+    },
+    {
+      "id": 7,
+      "nome": "saca parafuso",
+      "preco_custo": 15.09,
+      "estoque": 50,
+      "descricao": "",
+      "categoria": "ferramentas",
+      "ncm": "10900000",
+      "fabricante": "ningboooo",
+      "data_cadastro": "2025-07-22T13:36:47.460Z",
+      "data_modificacao": "2025-07-22T13:36:47.460Z"
+    }
+  ],
+  "vendas": [],
+  "nextProductId": 8,
+  "nextSaleId": 1
+}
