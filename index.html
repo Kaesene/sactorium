@@ -18,6 +18,7 @@
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="products">📦 Gestão de Produtos</button>
             <button class="tab-btn" data-tab="calculator">💰 Calculadora ML</button>
+            <button class="tab-btn" data-tab="imports">🚢 Importações</button>
         </nav>
 
         <!-- Products Tab -->
@@ -146,6 +147,184 @@
                         <h3>🔵 OPÇÃO TAXA 12%</h3>
                         <div id="result-12" class="result-content">
                             Selecione um produto para calcular
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Imports Tab -->
+        <div class="tab-content" id="imports-tab">
+            <div class="imports-layout">
+                <h2>🚢 Calculadora de Importações</h2>
+                
+                <div class="imports-container">
+                    <!-- Dados do Produto -->
+                    <div class="import-section">
+                        <h3>📦 Dados do Produto</h3>
+                        <div class="imports-inputs">
+                            <div class="input-group">
+                                <label>Nome do Produto:</label>
+                                <input type="text" id="import-product-name" placeholder="Nome do produto...">
+                            </div>
+                            
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Preço FOB (USD):</label>
+                                    <input type="number" id="import-fob-price" step="0.01" placeholder="0.00">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Quantidade:</label>
+                                    <input type="number" id="import-quantity" placeholder="1">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Peso (kg):</label>
+                                    <input type="number" id="import-weight" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custos de Importação -->
+                    <div class="import-section">
+                        <h3>💰 Custos de Importação</h3>
+                        <div class="imports-inputs">
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Taxa USD (R$):</label>
+                                    <input type="number" id="import-usd-rate" step="0.01" value="5.50" placeholder="5.50">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Frete Internacional (USD):</label>
+                                    <input type="number" id="import-freight" step="0.01" placeholder="0.00">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Seguro (%FOB):</label>
+                                    <input type="number" id="import-insurance" step="0.01" value="0.5" placeholder="0.5">
+                                </div>
+                            </div>
+                            
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Imposto de Importação (%):</label>
+                                    <input type="number" id="import-tax" step="0.01" value="14" placeholder="14">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>IPI (%):</label>
+                                    <input type="number" id="import-ipi" step="0.01" value="15" placeholder="15">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>PIS/COFINS (%):</label>
+                                    <input type="number" id="import-pis-cofins" step="0.01" value="9.25" placeholder="9.25">
+                                </div>
+                            </div>
+                            
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>ICMS (%):</label>
+                                    <input type="number" id="import-icms" step="0.01" value="18" placeholder="18">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Despachante (R$):</label>
+                                    <input type="number" id="import-customs-broker" step="0.01" value="500" placeholder="500.00">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Outras Despesas (R$):</label>
+                                    <input type="number" id="import-other-costs" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Margem de Lucro -->
+                    <div class="import-section">
+                        <h3>📈 Margem de Lucro</h3>
+                        <div class="imports-inputs">
+                            <div class="input-row">
+                                <div class="input-group">
+                                    <label>Margem Desejada (%):</label>
+                                    <input type="number" id="import-margin" step="0.01" value="40" placeholder="40">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>Comissão ML (%):</label>
+                                    <select id="import-ml-commission">
+                                        <option value="12">12% (ML Clássico)</option>
+                                        <option value="17">17% (ML Premium)</option>
+                                        <option value="15">15% (Personalizado)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="calculation-buttons">
+                    <button class="btn btn-primary" onclick="calculateImport()">🧮 Calcular Importação</button>
+                    <button class="btn btn-secondary" onclick="clearImportForm()">🗑️ Limpar</button>
+                    <button class="btn btn-success" onclick="saveImportProduct()">💾 Salvar Produto</button>
+                </div>
+                
+                <!-- Resultados -->
+                <div class="import-results-container" id="import-results" style="display: none;">
+                    <div class="result-section">
+                        <h3>📊 Resumo dos Custos</h3>
+                        <div class="cost-breakdown">
+                            <div class="cost-item">
+                                <span>Produto (FOB):</span>
+                                <span id="result-fob-brl">R$ 0,00</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>Frete + Seguro:</span>
+                                <span id="result-freight-insurance">R$ 0,00</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>Impostos:</span>
+                                <span id="result-taxes">R$ 0,00</span>
+                            </div>
+                            <div class="cost-item">
+                                <span>Despesas Extras:</span>
+                                <span id="result-extra-costs">R$ 0,00</span>
+                            </div>
+                            <div class="cost-item total">
+                                <span><strong>Custo Total:</strong></span>
+                                <span id="result-total-cost"><strong>R$ 0,00</strong></span>
+                            </div>
+                            <div class="cost-item unit">
+                                <span><strong>Custo Unitário:</strong></span>
+                                <span id="result-unit-cost"><strong>R$ 0,00</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>💰 Preços de Venda</h3>
+                        <div class="pricing-results">
+                            <div class="price-option">
+                                <h4>🛒 Venda Direta</h4>
+                                <div class="price-details">
+                                    <div>Preço c/ Margem: <span id="result-direct-price">R$ 0,00</span></div>
+                                    <div>Lucro Unitário: <span id="result-direct-profit">R$ 0,00</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="price-option">
+                                <h4>🚀 Mercado Livre</h4>
+                                <div class="price-details">
+                                    <div>Preço Final: <span id="result-ml-price">R$ 0,00</span></div>
+                                    <div>Após Comissão: <span id="result-ml-net">R$ 0,00</span></div>
+                                    <div>Lucro Unitário: <span id="result-ml-profit">R$ 0,00</span></div>
+                                    <div>Margem Real: <span id="result-ml-margin">0%</span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

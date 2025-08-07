@@ -452,3 +452,179 @@ window.onclick = function(event) {
         }
     });
 };
+
+// ==========================================
+// IMPORTAÇÕES - FUNÇÕES
+// ==========================================
+
+function calculateImport() {
+    // Obter valores dos inputs
+    const productName = document.getElementById('import-product-name').value;
+    const fobPrice = parseFloat(document.getElementById('import-fob-price').value) || 0;
+    const quantity = parseInt(document.getElementById('import-quantity').value) || 1;
+    const weight = parseFloat(document.getElementById('import-weight').value) || 0;
+    
+    const usdRate = parseFloat(document.getElementById('import-usd-rate').value) || 5.50;
+    const freight = parseFloat(document.getElementById('import-freight').value) || 0;
+    const insurance = parseFloat(document.getElementById('import-insurance').value) || 0.5;
+    
+    const importTax = parseFloat(document.getElementById('import-tax').value) || 14;
+    const ipi = parseFloat(document.getElementById('import-ipi').value) || 15;
+    const pisCofins = parseFloat(document.getElementById('import-pis-cofins').value) || 9.25;
+    const icms = parseFloat(document.getElementById('import-icms').value) || 18;
+    
+    const customsBroker = parseFloat(document.getElementById('import-customs-broker').value) || 500;
+    const otherCosts = parseFloat(document.getElementById('import-other-costs').value) || 0;
+    
+    const margin = parseFloat(document.getElementById('import-margin').value) || 40;
+    const mlCommission = parseFloat(document.getElementById('import-ml-commission').value) || 12;
+    
+    // Validações básicas
+    if (!productName || fobPrice <= 0) {
+        alert('Por favor, preencha o nome do produto e o preço FOB');
+        return;
+    }
+    
+    // Cálculos
+    const totalFobUsd = fobPrice * quantity;
+    const totalFobBrl = totalFobUsd * usdRate;
+    
+    // Seguro (% sobre FOB)
+    const insuranceUsd = totalFobUsd * (insurance / 100);
+    const insuranceBrl = insuranceUsd * usdRate;
+    
+    // Frete em reais
+    const freightBrl = freight * usdRate;
+    const freightInsuranceTotal = freightBrl + insuranceBrl;
+    
+    // Base de cálculo dos impostos (FOB + Frete + Seguro)
+    const taxBase = totalFobBrl + freightInsuranceTotal;
+    
+    // Cálculo dos impostos
+    const importTaxValue = taxBase * (importTax / 100);
+    const ipiBase = taxBase + importTaxValue;
+    const ipiValue = ipiBase * (ipi / 100);
+    const pisCofinsBase = taxBase + importTaxValue + ipiValue;
+    const pisCofinsValue = pisCofinsBase * (pisCofins / 100);
+    
+    // ICMS (calculado sobre toda a base + impostos anteriores)
+    const icmsBase = pisCofinsBase + pisCofinsValue;
+    const icmsValue = icmsBase * (icms / 100);
+    
+    const totalTaxes = importTaxValue + ipiValue + pisCofinsValue + icmsValue;
+    
+    // Despesas extras
+    const extraCosts = customsBroker + otherCosts;
+    
+    // Custo total
+    const totalCost = totalFobBrl + freightInsuranceTotal + totalTaxes + extraCosts;
+    const unitCost = totalCost / quantity;
+    
+    // Preços de venda
+    const directPrice = unitCost * (1 + margin / 100);
+    const directProfit = directPrice - unitCost;
+    
+    // Preço para ML (considerando a comissão)
+    const mlPrice = unitCost / (1 - (margin / 100) - (mlCommission / 100));
+    const mlNet = mlPrice * (1 - mlCommission / 100);
+    const mlProfit = mlNet - unitCost;
+    const mlRealMargin = ((mlProfit / unitCost) * 100);
+    
+    // Exibir resultados
+    document.getElementById('result-fob-brl').textContent = formatCurrency(totalFobBrl);
+    document.getElementById('result-freight-insurance').textContent = formatCurrency(freightInsuranceTotal);
+    document.getElementById('result-taxes').textContent = formatCurrency(totalTaxes);
+    document.getElementById('result-extra-costs').textContent = formatCurrency(extraCosts);
+    document.getElementById('result-total-cost').textContent = formatCurrency(totalCost);
+    document.getElementById('result-unit-cost').textContent = formatCurrency(unitCost);
+    
+    document.getElementById('result-direct-price').textContent = formatCurrency(directPrice);
+    document.getElementById('result-direct-profit').textContent = formatCurrency(directProfit);
+    
+    document.getElementById('result-ml-price').textContent = formatCurrency(mlPrice);
+    document.getElementById('result-ml-net').textContent = formatCurrency(mlNet);
+    document.getElementById('result-ml-profit').textContent = formatCurrency(mlProfit);
+    document.getElementById('result-ml-margin').textContent = mlRealMargin.toFixed(1) + '%';
+    
+    // Mostrar container de resultados
+    document.getElementById('import-results').style.display = 'block';
+    
+    // Scroll para os resultados
+    document.getElementById('import-results').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
+
+function clearImportForm() {
+    // Limpar campos do produto
+    document.getElementById('import-product-name').value = '';
+    document.getElementById('import-fob-price').value = '';
+    document.getElementById('import-quantity').value = '1';
+    document.getElementById('import-weight').value = '';
+    
+    // Manter valores padrão dos impostos e taxas
+    document.getElementById('import-usd-rate').value = '5.50';
+    document.getElementById('import-freight').value = '';
+    document.getElementById('import-insurance').value = '0.5';
+    document.getElementById('import-tax').value = '14';
+    document.getElementById('import-ipi').value = '15';
+    document.getElementById('import-pis-cofins').value = '9.25';
+    document.getElementById('import-icms').value = '18';
+    document.getElementById('import-customs-broker').value = '500';
+    document.getElementById('import-other-costs').value = '';
+    document.getElementById('import-margin').value = '40';
+    document.getElementById('import-ml-commission').value = '12';
+    
+    // Ocultar resultados
+    document.getElementById('import-results').style.display = 'none';
+}
+
+async function saveImportProduct() {
+    const productName = document.getElementById('import-product-name').value;
+    const unitCostText = document.getElementById('result-unit-cost').textContent;
+    
+    if (!productName || unitCostText === 'R$ 0,00') {
+        alert('Por favor, calcule a importação primeiro');
+        return;
+    }
+    
+    // Extrair valor numérico do custo unitário
+    const unitCost = parseFloat(unitCostText.replace('R$ ', '').replace('.', '').replace(',', '.'));
+    const quantity = parseInt(document.getElementById('import-quantity').value) || 1;
+    
+    try {
+        const product = {
+            nome: productName,
+            preco_custo: unitCost,
+            estoque: quantity,
+            categoria: 'Importado',
+            descricao: 'Produto calculado via importação',
+            fabricante: 'Importado',
+            ncm: ''
+        };
+        
+        await ipcRenderer.invoke('add-product', product);
+        
+        alert('✅ Produto salvo com sucesso!\nO produto foi adicionado à lista de produtos.');
+        
+        // Limpar formulário
+        clearImportForm();
+        
+        // Atualizar lista de produtos
+        loadProducts();
+        
+        // Voltar para aba de produtos
+        switchTab('products');
+        
+    } catch (error) {
+        alert('Erro ao salvar produto: ' + error.message);
+    }
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(value);
+}

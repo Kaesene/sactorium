@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const JSONDatabase = require('./database.js');
+const config = require('./config.js');
 
 // Manter referência da janela
 let mainWindow;
@@ -10,14 +11,15 @@ let db;
 function createWindow() {
   // Criar janela principal
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 700,
+    width: config.window.width,
+    height: config.window.height,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      webSecurity: config.window.webSecurity
     },
-    title: 'Sactorium Desktop',
+    title: `${config.app.name} v${config.app.version} (${config.environment})`,
     icon: path.join(__dirname, 'assets', 'icon.png')
   });
 
@@ -51,8 +53,10 @@ function createWindow() {
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 
-  // DevTools para desenvolvimento (remover em produção)
-  // mainWindow.webContents.openDevTools();
+  // DevTools para desenvolvimento
+  if (config.app.devTools) {
+    mainWindow.webContents.openDevTools();
+  }
   
   // Limpar cache do Electron
   mainWindow.webContents.session.clearCache();
