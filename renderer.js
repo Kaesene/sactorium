@@ -628,3 +628,344 @@ function formatCurrency(value) {
         currency: 'BRL'
     }).format(value);
 }
+
+// ==========================================
+// NCM - FUNÇÕES
+// ==========================================
+
+let selectedNCM = null;
+let allNCMs = [];
+let filteredNCMs = [];
+
+// Inicializar sistema NCM ao abrir aba importações
+function initNCMSystem() {
+    loadAllNCMs();
+    setupNCMSearch();
+    loadParaguayDefaults();
+}
+
+// Carregar todos os NCMs
+async function loadAllNCMs() {
+    try {
+        allNCMs = await ipcRenderer.invoke('get-all-ncms');
+        updateNCMTable();
+        updateCategoryFilter();
+    } catch (error) {
+        console.error('Erro ao carregar NCMs:', error);
+    }
+}
+
+// Configurar busca de NCM
+function setupNCMSearch() {
+    const searchInput = document.getElementById('ncm-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(searchNCM, 300));
+    }
+}
+
+// Buscar NCM
+async function searchNCM() {
+    const query = document.getElementById('ncm-search').value;
+    const resultsContainer = document.getElementById('ncm-results');
+    const resultsList = document.getElementById('ncm-list');
+    
+    if (query.length < 2) {
+        resultsContainer.style.display = 'none';
+        return;
+    }
+    
+    try {
+        const results = await ipcRenderer.invoke('search-ncm', query);
+        
+        if (results.length === 0) {
+            resultsList.innerHTML = '<div class="no-results">Nenhum NCM encontrado</div>';
+        } else {
+            resultsList.innerHTML = results.map(ncm => `
+                <div class="ncm-item" onclick="selectNCM('${ncm.code}')">
+                    <div class="ncm-code">${ncm.code}</div>
+                    <div class="ncm-description">${ncm.description}</div>
+                    <div class="ncm-category">${ncm.category}</div>
+                    <div class="ncm-taxes">II:${ncm.import_tax}% | IPI:${ncm.ipi}% | ICMS:${ncm.icms}%</div>
+                </div>
+            `).join('');
+        }
+        
+        resultsContainer.style.display = 'block';
+    } catch (error) {
+        console.error('Erro na busca NCM:', error);
+        resultsList.innerHTML = '<div class="error">Erro na busca</div>';
+    }
+}
+
+// Selecionar NCM
+async function selectNCM(code) {
+    try {
+        const ncm = await ipcRenderer.invoke('get-ncm-by-code', code);
+        if (!ncm) return;
+        
+        selectedNCM = ncm;
+        
+        // Atualizar interface
+        document.getElementById('selected-ncm-code').textContent = ncm.code;
+        document.getElementById('selected-ncm-desc').textContent = ncm.description;
+        document.getElementById('selected-ncm-category').textContent = ncm.category;
+        document.getElementById('selected-ncm-ii').textContent = ncm.import_tax;
+        document.getElementById('selected-ncm-ipi').textContent = ncm.ipi;
+        document.getElementById('selected-ncm-pis').textContent = ncm.pis_cofins;
+        document.getElementById('selected-ncm-icms').textContent = ncm.icms;
+        
+        // Atualizar campos de imposto na calculadora
+        document.getElementById('import-tax').value = ncm.import_tax;
+        document.getElementById('import-ipi').value = ncm.ipi;
+        document.getElementById('import-pis-cofins').value = ncm.pis_cofins;
+        document.getElementById('import-icms').value = ncm.icms;
+        
+        // Mostrar NCM selecionado
+        document.getElementById('selected-ncm').style.display = 'block';
+        document.getElementById('ncm-results').style.display = 'none';
+        document.getElementById('ncm-search').value = `${ncm.code} - ${ncm.description}`;
+        
+    } catch (error) {
+        console.error('Erro ao selecionar NCM:', error);
+    }
+}
+
+// Limpar NCM selecionado
+function clearSelectedNCM() {
+    selectedNCM = null;
+    document.getElementById('selected-ncm').style.display = 'none';
+    document.getElementById('ncm-search').value = '';
+    
+    // Restaurar valores padrão
+    document.getElementById('import-tax').value = '16';
+    document.getElementById('import-ipi').value = '0';
+    document.getElementById('import-pis-cofins').value = '9.25';
+    document.getElementById('import-icms').value = '18';
+}
+
+// Carregar valores padrão do Paraguai
+async function loadParaguayDefaults() {
+    try {
+        const defaults = await ipcRenderer.invoke('get-paraguay-defaults');
+        
+        // Atualizar campos com valores padrão do Paraguai
+        if (defaults.default_freight_rate) {
+            document.getElementById('import-freight').placeholder = `Padrão: ${defaults.default_freight_rate}% FOB`;
+        }
+        if (defaults.default_insurance_rate) {
+            document.getElementById('import-insurance').value = defaults.default_insurance_rate;
+        }
+        if (defaults.default_broker_fee) {
+            document.getElementById('import-customs-broker').value = defaults.default_broker_fee;
+        }
+        if (defaults.default_other_costs) {
+            document.getElementById('import-other-costs').placeholder = `Padrão: R$ ${defaults.default_other_costs}`;
+        }
+        if (defaults.usd_rate) {
+            document.getElementById('import-usd-rate').value = defaults.usd_rate;
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar padrões Paraguai:', error);
+    }
+}
+
+// ==========================================
+// NCM MANAGER - FUNÇÕES
+// ==========================================
+
+// Mostrar gerenciador de NCM
+function showNCMManager() {
+    loadAllNCMs();
+    showModal('ncm-modal');
+}
+
+// Atualizar tabela de NCMs
+function updateNCMTable() {
+    const tbody = document.getElementById('ncm-table-body');
+    if (!tbody) return;
+    
+    const ncmsToShow = filteredNCMs.length > 0 ? filteredNCMs : allNCMs;
+    
+    tbody.innerHTML = ncmsToShow.map(ncm => `
+        <tr>
+            <td>${ncm.code}</td>
+            <td title="${ncm.description}">${ncm.description.substring(0, 40)}${ncm.description.length > 40 ? '...' : ''}</td>
+            <td>${ncm.category}</td>
+            <td>${ncm.import_tax}%</td>
+            <td>${ncm.ipi}%</td>
+            <td>${ncm.icms}%</td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="editNCM('${ncm.code}')">✏️</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteNCM('${ncm.code}')">🗑️</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// Atualizar filtro de categorias
+function updateCategoryFilter() {
+    const filter = document.getElementById('category-filter');
+    if (!filter) return;
+    
+    const categories = [...new Set(allNCMs.map(ncm => ncm.category))].sort();
+    filter.innerHTML = '<option value="">Todas as categorias</option>' +
+        categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+}
+
+// Filtrar lista de NCMs
+function filterNCMList() {
+    const textFilter = document.getElementById('ncm-filter').value.toLowerCase();
+    const categoryFilter = document.getElementById('category-filter').value;
+    
+    filteredNCMs = allNCMs.filter(ncm => {
+        const matchText = !textFilter || 
+            ncm.code.toLowerCase().includes(textFilter) ||
+            ncm.description.toLowerCase().includes(textFilter);
+            
+        const matchCategory = !categoryFilter || ncm.category === categoryFilter;
+        
+        return matchText && matchCategory;
+    });
+    
+    updateNCMTable();
+}
+
+// Configurar formulário NCM
+document.addEventListener('DOMContentLoaded', () => {
+    const ncmForm = document.getElementById('ncm-form');
+    if (ncmForm) {
+        ncmForm.addEventListener('submit', handleNCMSubmit);
+    }
+});
+
+// Manipular envio do formulário NCM
+async function handleNCMSubmit(e) {
+    e.preventDefault();
+    
+    const ncmData = {
+        code: document.getElementById('new-ncm-code').value,
+        description: document.getElementById('new-ncm-description').value,
+        category: document.getElementById('new-ncm-category').value,
+        import_tax: document.getElementById('new-ncm-import-tax').value,
+        ipi: document.getElementById('new-ncm-ipi').value,
+        pis_cofins: document.getElementById('new-ncm-pis-cofins').value,
+        icms: document.getElementById('new-ncm-icms').value,
+        notes: document.getElementById('new-ncm-notes').value
+    };
+    
+    try {
+        await ipcRenderer.invoke('add-ncm', ncmData);
+        alert('✅ NCM adicionado com sucesso!');
+        clearNCMForm();
+        loadAllNCMs();
+    } catch (error) {
+        alert('❌ Erro ao adicionar NCM: ' + error.message);
+    }
+}
+
+// Limpar formulário NCM
+function clearNCMForm() {
+    document.getElementById('ncm-form').reset();
+    document.getElementById('new-ncm-import-tax').value = '16';
+    document.getElementById('new-ncm-ipi').value = '0';
+    document.getElementById('new-ncm-pis-cofins').value = '9.25';
+    document.getElementById('new-ncm-icms').value = '18';
+}
+
+// Editar NCM
+async function editNCM(code) {
+    try {
+        const ncm = await ipcRenderer.invoke('get-ncm-by-code', code);
+        if (!ncm) return;
+        
+        // Preencher formulário com dados do NCM
+        document.getElementById('new-ncm-code').value = ncm.code;
+        document.getElementById('new-ncm-description').value = ncm.description;
+        document.getElementById('new-ncm-category').value = ncm.category;
+        document.getElementById('new-ncm-import-tax').value = ncm.import_tax;
+        document.getElementById('new-ncm-ipi').value = ncm.ipi;
+        document.getElementById('new-ncm-pis-cofins').value = ncm.pis_cofins;
+        document.getElementById('new-ncm-icms').value = ncm.icms;
+        document.getElementById('new-ncm-notes').value = ncm.notes || '';
+        
+        // Desabilitar campo código (não pode ser editado)
+        document.getElementById('new-ncm-code').readOnly = true;
+        
+        // Mudar texto do botão
+        const submitBtn = document.querySelector('#ncm-form button[type="submit"]');
+        submitBtn.textContent = '✏️ Atualizar NCM';
+        submitBtn.onclick = () => updateNCM(code);
+        
+    } catch (error) {
+        alert('Erro ao carregar dados do NCM: ' + error.message);
+    }
+}
+
+// Atualizar NCM
+async function updateNCM(code) {
+    const updateData = {
+        description: document.getElementById('new-ncm-description').value,
+        category: document.getElementById('new-ncm-category').value,
+        import_tax: document.getElementById('new-ncm-import-tax').value,
+        ipi: document.getElementById('new-ncm-ipi').value,
+        pis_cofins: document.getElementById('new-ncm-pis-cofins').value,
+        icms: document.getElementById('new-ncm-icms').value,
+        notes: document.getElementById('new-ncm-notes').value
+    };
+    
+    try {
+        await ipcRenderer.invoke('update-ncm', code, updateData);
+        alert('✅ NCM atualizado com sucesso!');
+        resetNCMForm();
+        loadAllNCMs();
+    } catch (error) {
+        alert('❌ Erro ao atualizar NCM: ' + error.message);
+    }
+}
+
+// Deletar NCM
+async function deleteNCM(code) {
+    if (!confirm(`Tem certeza que deseja deletar o NCM ${code}?`)) {
+        return;
+    }
+    
+    try {
+        await ipcRenderer.invoke('delete-ncm', code);
+        alert('✅ NCM deletado com sucesso!');
+        loadAllNCMs();
+    } catch (error) {
+        alert('❌ Erro ao deletar NCM: ' + error.message);
+    }
+}
+
+// Resetar formulário NCM
+function resetNCMForm() {
+    clearNCMForm();
+    document.getElementById('new-ncm-code').readOnly = false;
+    const submitBtn = document.querySelector('#ncm-form button[type="submit"]');
+    submitBtn.textContent = '💾 Salvar NCM';
+    submitBtn.onclick = null;
+}
+
+// Utility: Debounce
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Inicializar sistema NCM quando a aba importações for aberta
+const originalSwitchTab = switchTab;
+switchTab = function(tabName) {
+    originalSwitchTab.call(this, tabName);
+    if (tabName === 'imports') {
+        setTimeout(() => initNCMSystem(), 100);
+    }
+};

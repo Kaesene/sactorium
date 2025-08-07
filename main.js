@@ -2,11 +2,13 @@ const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const JSONDatabase = require('./database.js');
+const NCMDatabase = require('./ncm-database.js');
 const config = require('./config.js');
 
 // Manter referência da janela
 let mainWindow;
 let db;
+let ncmDb;
 
 function createWindow() {
   // Criar janela principal
@@ -19,8 +21,8 @@ function createWindow() {
       enableRemoteModule: true,
       webSecurity: config.window.webSecurity
     },
-    title: `${config.app.name} v${config.app.version} (${config.environment})`,
-    icon: path.join(__dirname, 'assets', 'icon.png')
+    title: `${config.app.name} v${config.app.version} (${config.environment})`
+    // icon: path.join(__dirname, 'assets', 'icon.png') // Comentado até criarmos o ícone
   });
 
   // Carregar interface
@@ -58,6 +60,15 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
   
+  // Tratamento de erros
+  mainWindow.webContents.on('crashed', (event) => {
+    console.error('Renderer process crashed:', event);
+  });
+  
+  mainWindow.on('unresponsive', () => {
+    console.error('Window became unresponsive');
+  });
+  
   // Limpar cache do Electron
   mainWindow.webContents.session.clearCache();
 }
@@ -65,7 +76,9 @@ function createWindow() {
 // Inicializar banco de dados
 function initDatabase() {
   db = new JSONDatabase();
+  ncmDb = new NCMDatabase();
   console.log('Banco de dados JSON inicializado');
+  console.log('Banco de dados NCM inicializado');
 }
 
 // Eventos do app
@@ -257,5 +270,102 @@ ipcMain.handle('import-csv', async () => {
       success: false, 
       message: `Erro na importação: ${error.message}` 
     };
+  }
+});
+
+// ==========================================
+// NCM - HANDLERS IPC
+// ==========================================
+
+ipcMain.handle('search-ncm', async (event, query) => {
+  try {
+    if (!query || query.length < 2) {
+      return ncmDb.getAllNCMs();
+    }
+    return ncmDb.searchByDescription(query);
+  } catch (error) {
+    console.error('Erro ao buscar NCM:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('get-ncm-by-code', async (event, code) => {
+  try {
+    return ncmDb.findByCode(code);
+  } catch (error) {
+    console.error('Erro ao buscar NCM por código:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('get-all-ncms', async () => {
+  try {
+    return ncmDb.getAllNCMs();
+  } catch (error) {
+    console.error('Erro ao listar NCMs:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('get-ncm-categories', async () => {
+  try {
+    return ncmDb.getCategories();
+  } catch (error) {
+    console.error('Erro ao listar categorias NCM:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('add-ncm', async (event, ncmData) => {
+  try {
+    return ncmDb.addNCM(ncmData);
+  } catch (error) {
+    console.error('Erro ao adicionar NCM:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('update-ncm', async (event, code, updateData) => {
+  try {
+    return ncmDb.updateNCM(code, updateData);
+  } catch (error) {
+    console.error('Erro ao atualizar NCM:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('delete-ncm', async (event, code) => {
+  try {
+    return ncmDb.deleteNCM(code);
+  } catch (error) {
+    console.error('Erro ao deletar NCM:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('get-paraguay-defaults', async () => {
+  try {
+    return ncmDb.getParaguayDefaults();
+  } catch (error) {
+    console.error('Erro ao obter configurações Paraguai:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('update-paraguay-defaults', async (event, newDefaults) => {
+  try {
+    return ncmDb.updateParaguayDefaults(newDefaults);
+  } catch (error) {
+    console.error('Erro ao atualizar configurações Paraguai:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('calculate-ncm-taxes', async (event, ncmCode, fobValue) => {
+  try {
+    return ncmDb.calculateTaxes(ncmCode, fobValue);
+  } catch (error) {
+    console.error('Erro ao calcular impostos NCM:', error);
+    throw error;
   }
 });

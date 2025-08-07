@@ -161,11 +161,38 @@
                 <div class="imports-container">
                     <!-- Dados do Produto -->
                     <div class="import-section">
-                        <h3>📦 Dados do Produto</h3>
+                        <h3>📦 Dados do Produto - Paraguai</h3>
                         <div class="imports-inputs">
                             <div class="input-group">
                                 <label>Nome do Produto:</label>
                                 <input type="text" id="import-product-name" placeholder="Nome do produto...">
+                            </div>
+                            
+                            <!-- NCM Section -->
+                            <div class="ncm-section">
+                                <div class="input-group">
+                                    <label>🔍 Buscar NCM:</label>
+                                    <input type="text" id="ncm-search" placeholder="Digite código NCM ou descrição...">
+                                </div>
+                                <div class="ncm-results" id="ncm-results" style="display: none;">
+                                    <div class="ncm-list" id="ncm-list"></div>
+                                </div>
+                                <div class="selected-ncm" id="selected-ncm" style="display: none;">
+                                    <h4>📋 NCM Selecionado:</h4>
+                                    <div class="ncm-details">
+                                        <div><strong>Código:</strong> <span id="selected-ncm-code">-</span></div>
+                                        <div><strong>Descrição:</strong> <span id="selected-ncm-desc">-</span></div>
+                                        <div><strong>Categoria:</strong> <span id="selected-ncm-category">-</span></div>
+                                        <div class="tax-preview">
+                                            <strong>Impostos: </strong>
+                                            II: <span id="selected-ncm-ii">0</span>% | 
+                                            IPI: <span id="selected-ncm-ipi">0</span>% | 
+                                            PIS/COFINS: <span id="selected-ncm-pis">0</span>% | 
+                                            ICMS: <span id="selected-ncm-icms">0</span>%
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-sm btn-secondary" onclick="clearSelectedNCM()">Limpar NCM</button>
+                                </div>
                             </div>
                             
                             <div class="input-row">
@@ -271,6 +298,7 @@
                     <button class="btn btn-primary" onclick="calculateImport()">🧮 Calcular Importação</button>
                     <button class="btn btn-secondary" onclick="clearImportForm()">🗑️ Limpar</button>
                     <button class="btn btn-success" onclick="saveImportProduct()">💾 Salvar Produto</button>
+                    <button class="btn btn-info" onclick="showNCMManager()">📋 Gerenciar NCMs</button>
                 </div>
                 
                 <!-- Resultados -->
@@ -405,6 +433,107 @@
                         <!-- Sales will be loaded here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- NCM Manager Modal -->
+    <div class="modal" id="ncm-modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeModal('ncm-modal')">&times;</span>
+            <h2>📋 Gerenciamento de NCMs - Paraguai</h2>
+            
+            <div class="ncm-manager">
+                <!-- Add NCM Form -->
+                <div class="ncm-form-section">
+                    <h3>➕ Adicionar Novo NCM</h3>
+                    <form id="ncm-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Código NCM:</label>
+                                <input type="text" id="new-ncm-code" required maxlength="8" placeholder="12345678">
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria:</label>
+                                <select id="new-ncm-category">
+                                    <option value="Eletrônicos">Eletrônicos</option>
+                                    <option value="Informática">Informática</option>
+                                    <option value="Acessórios">Acessórios</option>
+                                    <option value="Brinquedos">Brinquedos</option>
+                                    <option value="Vestuário">Vestuário</option>
+                                    <option value="Calçados">Calçados</option>
+                                    <option value="Ferramentas">Ferramentas</option>
+                                    <option value="Cosméticos">Cosméticos</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descrição:</label>
+                            <input type="text" id="new-ncm-description" required placeholder="Descrição do produto...">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Imposto Importação (%):</label>
+                                <input type="number" id="new-ncm-import-tax" step="0.01" value="16" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>IPI (%):</label>
+                                <input type="number" id="new-ncm-ipi" step="0.01" value="0" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>PIS/COFINS (%):</label>
+                                <input type="number" id="new-ncm-pis-cofins" step="0.01" value="9.25" min="0" max="50">
+                            </div>
+                            <div class="form-group">
+                                <label>ICMS (%):</label>
+                                <input type="number" id="new-ncm-icms" step="0.01" value="18" min="0" max="30">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Observações:</label>
+                            <textarea id="new-ncm-notes" rows="2" placeholder="Observações sobre este NCM..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">💾 Salvar NCM</button>
+                            <button type="button" class="btn btn-secondary" onclick="clearNCMForm()">🗑️ Limpar</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- NCM List -->
+                <div class="ncm-list-section">
+                    <h3>📋 NCMs Cadastrados</h3>
+                    <div class="ncm-search-filter">
+                        <input type="text" id="ncm-filter" placeholder="🔍 Filtrar NCMs..." onkeyup="filterNCMList()">
+                        <select id="category-filter" onchange="filterNCMList()">
+                            <option value="">Todas as categorias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="ncm-table-container">
+                        <table class="ncm-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>II%</th>
+                                    <th>IPI%</th>
+                                    <th>ICMS%</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ncm-table-body">
+                                <!-- NCMs will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
