@@ -197,18 +197,45 @@
                             
                             <div class="input-row">
                                 <div class="input-group">
-                                    <label>Preço FOB (USD):</label>
-                                    <input type="number" id="import-fob-price" step="0.01" placeholder="0.00">
+                                    <label>💰 Valor de Compra Total (USD):</label>
+                                    <input type="number" id="import-cost-usd" step="0.01" placeholder="0.00" onchange="calculateCIF()">
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label>Quantidade:</label>
+                                    <label>⚖️ Peso Total (kg):</label>
+                                    <input type="number" id="import-total-weight" step="0.01" placeholder="0.00" onchange="calculateCIF()">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>📦 Quantidade:</label>
                                     <input type="number" id="import-quantity" placeholder="1">
                                 </div>
-                                
-                                <div class="input-group">
-                                    <label>Peso (kg):</label>
-                                    <input type="number" id="import-weight" step="0.01" placeholder="0.00">
+                            </div>
+                            
+                            <!-- CIF Breakdown Section -->
+                            <div class="cif-breakdown" id="cif-breakdown" style="display: none;">
+                                <h4>📋 Cálculo CIF (Cost + Insurance + Freight)</h4>
+                                <div class="cif-details">
+                                    <div class="cif-item">
+                                        <span>💰 Custo (C):</span>
+                                        <span id="cif-cost">USD 0,00</span>
+                                    </div>
+                                    <div class="cif-item">
+                                        <span>🛡️ Seguro (I) - 1%:</span>
+                                        <span id="cif-insurance">USD 0,00</span>
+                                    </div>
+                                    <div class="cif-item">
+                                        <span>🚛 Frete (F) - USD 5/kg:</span>
+                                        <span id="cif-freight">USD 0,00</span>
+                                    </div>
+                                    <div class="cif-item total">
+                                        <span><strong>🎯 Total CIF:</strong></span>
+                                        <span id="cif-total"><strong>USD 0,00</strong></span>
+                                    </div>
+                                    <div class="cif-item unit">
+                                        <span><strong>📊 CIF por Unidade:</strong></span>
+                                        <span id="cif-unit"><strong>USD 0,00</strong></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -220,19 +247,16 @@
                         <div class="imports-inputs">
                             <div class="input-row">
                                 <div class="input-group">
-                                    <label>Taxa USD (R$):</label>
+                                    <label>💱 Taxa USD → BRL:</label>
                                     <input type="number" id="import-usd-rate" step="0.01" value="5.50" placeholder="5.50">
                                 </div>
-                                
-                                <div class="input-group">
-                                    <label>Frete Internacional (USD):</label>
-                                    <input type="number" id="import-freight" step="0.01" placeholder="0.00">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <label>Seguro (%FOB):</label>
-                                    <input type="number" id="import-insurance" step="0.01" value="0.5" placeholder="0.5">
-                                </div>
+                            </div>
+                            
+                            <div class="info-box">
+                                <h4>ℹ️ Cálculos Automáticos - Paraguai</h4>
+                                <p><strong>Seguro:</strong> 1% do valor de compra (automático)</p>
+                                <p><strong>Frete:</strong> USD 5,00 por kg (automático)</p>
+                                <p><strong>Base CIF:</strong> Custo + Seguro + Frete</p>
                             </div>
                             
                             <div class="input-row">
@@ -307,27 +331,27 @@
                         <h3>📊 Resumo dos Custos</h3>
                         <div class="cost-breakdown">
                             <div class="cost-item">
-                                <span>Produto (FOB):</span>
+                                <span>🎯 Base CIF (BRL):</span>
                                 <span id="result-fob-brl">R$ 0,00</span>
                             </div>
                             <div class="cost-item">
-                                <span>Frete + Seguro:</span>
+                                <span>🛡️🚛 Seguro + Frete (BRL):</span>
                                 <span id="result-freight-insurance">R$ 0,00</span>
                             </div>
                             <div class="cost-item">
-                                <span>Impostos:</span>
+                                <span>📊 Impostos Brasil:</span>
                                 <span id="result-taxes">R$ 0,00</span>
                             </div>
                             <div class="cost-item">
-                                <span>Despesas Extras:</span>
+                                <span>💼 Despesas Extras:</span>
                                 <span id="result-extra-costs">R$ 0,00</span>
                             </div>
                             <div class="cost-item total">
-                                <span><strong>Custo Total:</strong></span>
+                                <span><strong>💰 Custo Total:</strong></span>
                                 <span id="result-total-cost"><strong>R$ 0,00</strong></span>
                             </div>
                             <div class="cost-item unit">
-                                <span><strong>Custo Unitário:</strong></span>
+                                <span><strong>📦 Custo Unitário:</strong></span>
                                 <span id="result-unit-cost"><strong>R$ 0,00</strong></span>
                             </div>
                         </div>

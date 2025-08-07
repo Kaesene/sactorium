@@ -454,19 +454,82 @@ window.onclick = function(event) {
 };
 
 // ==========================================
+// IMPORTAÇÕES - FUNÇÕES CIF
+// ==========================================
+
+// Constantes para cálculo CIF - Paraguai
+const CIF_CONSTANTS = {
+    INSURANCE_RATE: 0.01, // 1% do valor de compra
+    FREIGHT_RATE_PER_KG: 5.00 // USD 5 por kg
+};
+
+// Calcular CIF automaticamente
+function calculateCIF() {
+    const costUSD = parseFloat(document.getElementById('import-cost-usd').value) || 0;
+    const totalWeight = parseFloat(document.getElementById('import-total-weight').value) || 0;
+    const quantity = parseInt(document.getElementById('import-quantity').value) || 1;
+    
+    if (costUSD <= 0 || totalWeight <= 0) {
+        document.getElementById('cif-breakdown').style.display = 'none';
+        return null;
+    }
+    
+    // Cálculos CIF
+    const cost = costUSD;
+    const insurance = costUSD * CIF_CONSTANTS.INSURANCE_RATE; // 1% do custo
+    const freight = totalWeight * CIF_CONSTANTS.FREIGHT_RATE_PER_KG; // USD 5/kg
+    const totalCIF = cost + insurance + freight;
+    const cifPerUnit = totalCIF / quantity;
+    
+    // Atualizar interface
+    document.getElementById('cif-cost').textContent = formatUSD(cost);
+    document.getElementById('cif-insurance').textContent = formatUSD(insurance);
+    document.getElementById('cif-freight').textContent = formatUSD(freight);
+    document.getElementById('cif-total').textContent = formatUSD(totalCIF);
+    document.getElementById('cif-unit').textContent = formatUSD(cifPerUnit);
+    
+    // Mostrar breakdown
+    document.getElementById('cif-breakdown').style.display = 'block';
+    
+    return {
+        cost: cost,
+        insurance: insurance,
+        freight: freight,
+        totalCIF: totalCIF,
+        cifPerUnit: cifPerUnit,
+        quantity: quantity,
+        totalWeight: totalWeight
+    };
+}
+
+// Formatar valor em USD
+function formatUSD(value) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(value);
+}
+
+// ==========================================
 // IMPORTAÇÕES - FUNÇÕES
 // ==========================================
 
 function calculateImport() {
+    // Primeiro calcular CIF
+    const cifData = calculateCIF();
+    if (!cifData) {
+        alert('Por favor, preencha o valor de compra e peso total para calcular o CIF');
+        return;
+    }
+    
     // Obter valores dos inputs
     const productName = document.getElementById('import-product-name').value;
-    const fobPrice = parseFloat(document.getElementById('import-fob-price').value) || 0;
-    const quantity = parseInt(document.getElementById('import-quantity').value) || 1;
-    const weight = parseFloat(document.getElementById('import-weight').value) || 0;
+    const quantity = cifData.quantity;
+    const totalWeight = cifData.totalWeight;
     
+    // Usar valores do CIF
+    const totalCifUSD = cifData.totalCIF;
     const usdRate = parseFloat(document.getElementById('import-usd-rate').value) || 5.50;
-    const freight = parseFloat(document.getElementById('import-freight').value) || 0;
-    const insurance = parseFloat(document.getElementById('import-insurance').value) || 0.5;
     
     const importTax = parseFloat(document.getElementById('import-tax').value) || 14;
     const ipi = parseFloat(document.getElementById('import-ipi').value) || 15;
@@ -480,25 +543,18 @@ function calculateImport() {
     const mlCommission = parseFloat(document.getElementById('import-ml-commission').value) || 12;
     
     // Validações básicas
-    if (!productName || fobPrice <= 0) {
-        alert('Por favor, preencha o nome do produto e o preço FOB');
+    if (!productName || totalCifUSD <= 0) {
+        alert('Por favor, preencha o nome do produto e calcule o CIF primeiro');
         return;
     }
     
-    // Cálculos
-    const totalFobUsd = fobPrice * quantity;
-    const totalFobBrl = totalFobUsd * usdRate;
+    // Cálculos baseados no CIF
+    const totalCifBrl = totalCifUSD * usdRate;
+    const cifInsuranceBrl = cifData.insurance * usdRate;
+    const cifFreightBrl = cifData.freight * usdRate;
     
-    // Seguro (% sobre FOB)
-    const insuranceUsd = totalFobUsd * (insurance / 100);
-    const insuranceBrl = insuranceUsd * usdRate;
-    
-    // Frete em reais
-    const freightBrl = freight * usdRate;
-    const freightInsuranceTotal = freightBrl + insuranceBrl;
-    
-    // Base de cálculo dos impostos (FOB + Frete + Seguro)
-    const taxBase = totalFobBrl + freightInsuranceTotal;
+    // Base de cálculo dos impostos = CIF em reais
+    const taxBase = totalCifBrl;
     
     // Cálculo dos impostos
     const importTaxValue = taxBase * (importTax / 100);
@@ -517,7 +573,7 @@ function calculateImport() {
     const extraCosts = customsBroker + otherCosts;
     
     // Custo total
-    const totalCost = totalFobBrl + freightInsuranceTotal + totalTaxes + extraCosts;
+    const totalCost = totalCifBrl + totalTaxes + extraCosts;
     const unitCost = totalCost / quantity;
     
     // Preços de venda
@@ -530,9 +586,9 @@ function calculateImport() {
     const mlProfit = mlNet - unitCost;
     const mlRealMargin = ((mlProfit / unitCost) * 100);
     
-    // Exibir resultados
-    document.getElementById('result-fob-brl').textContent = formatCurrency(totalFobBrl);
-    document.getElementById('result-freight-insurance').textContent = formatCurrency(freightInsuranceTotal);
+    // Exibir resultados - usando CIF
+    document.getElementById('result-fob-brl').textContent = formatCurrency(totalCifBrl);
+    document.getElementById('result-freight-insurance').textContent = formatCurrency(cifInsuranceBrl + cifFreightBrl);
     document.getElementById('result-taxes').textContent = formatCurrency(totalTaxes);
     document.getElementById('result-extra-costs').textContent = formatCurrency(extraCosts);
     document.getElementById('result-total-cost').textContent = formatCurrency(totalCost);
@@ -559,25 +615,27 @@ function calculateImport() {
 function clearImportForm() {
     // Limpar campos do produto
     document.getElementById('import-product-name').value = '';
-    document.getElementById('import-fob-price').value = '';
+    document.getElementById('import-cost-usd').value = '';
+    document.getElementById('import-total-weight').value = '';
     document.getElementById('import-quantity').value = '1';
-    document.getElementById('import-weight').value = '';
+    
+    // Limpar NCM selecionado
+    clearSelectedNCM();
     
     // Manter valores padrão dos impostos e taxas
     document.getElementById('import-usd-rate').value = '5.50';
-    document.getElementById('import-freight').value = '';
-    document.getElementById('import-insurance').value = '0.5';
-    document.getElementById('import-tax').value = '14';
-    document.getElementById('import-ipi').value = '15';
+    document.getElementById('import-tax').value = '16';
+    document.getElementById('import-ipi').value = '0';
     document.getElementById('import-pis-cofins').value = '9.25';
     document.getElementById('import-icms').value = '18';
-    document.getElementById('import-customs-broker').value = '500';
+    document.getElementById('import-customs-broker').value = '300';
     document.getElementById('import-other-costs').value = '';
     document.getElementById('import-margin').value = '40';
     document.getElementById('import-ml-commission').value = '12';
     
     // Ocultar resultados
     document.getElementById('import-results').style.display = 'none';
+    document.getElementById('cif-breakdown').style.display = 'none';
 }
 
 async function saveImportProduct() {
