@@ -34,7 +34,7 @@ jobs:
     - name: Upload Windows Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: sactorium-windows-v${{ github.run_number }}
+        name: sactorium-windows
         path: |
           dist/windows/*.exe
           dist/windows/*.exe.blockmap
@@ -66,7 +66,7 @@ jobs:
     - name: Upload macOS Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: sactorium-mac-v${{ github.run_number }}
+        name: sactorium-mac
         path: |
           dist/*.dmg
           dist/*.dmg.blockmap
@@ -85,13 +85,13 @@ jobs:
     - name: Download Windows Artifacts
       uses: actions/download-artifact@v4
       with:
-        name: sactorium-windows-v${{ github.run_number }}
+        name: sactorium-windows
         path: ./windows-build/
         
     - name: Download macOS Artifacts  
       uses: actions/download-artifact@v4
       with:
-        name: sactorium-mac-v${{ github.run_number }}
+        name: sactorium-mac
         path: ./mac-build/
         
     - name: Create Release
