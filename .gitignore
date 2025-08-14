@@ -5,6 +5,12 @@ npm-debug.log*
 # Build outputs
 dist/
 build/
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.AppImage
+*.blockmap
 
 # Database files
 *.db
