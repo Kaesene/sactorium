@@ -1,6 +1,6 @@
 {
   "name": "sactorium",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sistema de gestão de produtos e vendas - Sactorium Desktop",
   "main": "main.js",
   "scripts": {
@@ -11,6 +11,9 @@
     "build:test": "NODE_ENV=test electron-builder --publish=never",
     "build:prod": "NODE_ENV=production electron-builder --publish=never",
     "dist": "electron-builder --publish=never",
+    "dist:win": "electron-builder --win --x64 --ia32 --publish=never",
+    "dist:win-portable": "electron-builder --win portable --x64 --publish=never",
+    "dist:win-installer": "electron-builder --win nsis --x64 --ia32 --publish=never",
     "release:patch": "node release.js patch testing",
     "release:minor": "node release.js minor testing",
     "release:major": "node release.js major testing",
@@ -35,14 +38,34 @@
     "appId": "com.sactorium.desktop",
     "productName": "Sactorium",
     "directories": {
-      "output": "dist"
+      "output": "dist/windows"
     },
-    "mac": {
-      "category": "public.app-category.business",
-      "target": "dmg"
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable", 
+          "arch": ["x64"]
+        }
+      ],
+      "publisherName": "Sactorium",
+      "verifyUpdateCodeSignature": false
     },
-    "dmg": {
-      "title": "Sactorium Desktop"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sactorium Desktop",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "portable": {
+      "artifactName": "Sactorium-${version}-portable.exe"
     }
   }
 }
