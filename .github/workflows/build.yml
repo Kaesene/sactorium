@@ -8,6 +8,11 @@ on:
     branches: [ main ]
   workflow_dispatch: # Permite execução manual
 
+permissions:
+  contents: write
+  packages: write
+  actions: read
+
 jobs:
   build-windows:
     runs-on: windows-latest
