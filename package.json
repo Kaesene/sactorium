@@ -59,10 +59,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Sactorium Desktop",
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
-      "installerHeaderIcon": "build/icon.ico"
+      "shortcutName": "Sactorium Desktop"
     },
     "portable": {
       "artifactName": "Sactorium-${version}-portable.exe"
