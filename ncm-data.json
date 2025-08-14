@@ -1,0 +1,540 @@
+{
+  "ncms": [
+    {
+      "code": "85171231",
+      "description": "Telefones móveis (celulares) - smartphones",
+      "category": "Eletrônicos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 15,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "Produtos mais comuns via Paraguai"
+    },
+    {
+      "code": "85171219",
+      "description": "Telefones móveis (celulares) - outros",
+      "category": "Eletrônicos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 15,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "85285290",
+      "description": "Monitores e projetores de vídeo",
+      "category": "Eletrônicos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 10,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "84713020",
+      "description": "Computadores portáteis (notebooks)",
+      "category": "Informática",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "IPI zero conforme lei"
+    },
+    {
+      "code": "84713090",
+      "description": "Computadores - outros",
+      "category": "Informática",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "85444290",
+      "description": "Cabos para informática/eletrônicos",
+      "category": "Acessórios",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 5,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "85177000",
+      "description": "Partes de telefones (capas, película, etc)",
+      "category": "Acessórios",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 15,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "85183000",
+      "description": "Fones de ouvido/microfones",
+      "category": "Acessórios",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 10,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "95030000",
+      "description": "Brinquedos de madeira",
+      "category": "Brinquedos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 20,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "Tributação mais alta"
+    },
+    {
+      "code": "95049000",
+      "description": "Brinquedos - outros",
+      "category": "Brinquedos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 20,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "61091000",
+      "description": "Camisetas de malha - algodão",
+      "category": "Vestuário",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 35,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "Tributação muito alta - cuidado"
+    },
+    {
+      "code": "64039900",
+      "description": "Calçados - outros",
+      "category": "Calçados",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 35,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "Tributação muito alta"
+    },
+    {
+      "code": "82019000",
+      "description": "Ferramentas manuais - outras",
+      "category": "Ferramentas",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 5,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "33049900",
+      "description": "Produtos de beleza - outros",
+      "category": "Cosméticos",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    },
+    {
+      "code": "00000000",
+      "description": "NCM Genérico - Definir taxas manualmente",
+      "category": "Genérico",
+      "taxes": {
+        "tax1": {
+          "name": "Imposto Importação",
+          "rate": 16,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 10,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 9.25,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 18,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": "Use para produtos sem NCM específico"
+    },
+    {
+      "code": "82090011",
+      "description": "PASTILHA ",
+      "category": "Ferramentas",
+      "taxes": {
+        "tax1": {
+          "name": "General Rate",
+          "rate": 14.4,
+          "type": "percent"
+        },
+        "tax2": {
+          "name": "IPI",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax3": {
+          "name": "PIS/COFINS",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax4": {
+          "name": "ICMS",
+          "rate": 0,
+          "type": "percent"
+        },
+        "tax5": {
+          "name": "",
+          "rate": 0,
+          "type": "percent"
+        }
+      },
+      "notes": ""
+    }
+  ],
+  "customs": {
+    "default_freight_rate": 8,
+    "default_insurance_rate": 0.3,
+    "default_broker_fee": 300,
+    "default_other_costs": 150,
+    "usd_rate": 5.5,
+    "notes": "Taxas baseadas em importação via Paraguai - Ciudad del Este"
+  }
+}

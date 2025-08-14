@@ -165,14 +165,14 @@
                         <div class="imports-inputs">
                             <div class="input-group">
                                 <label>Nome do Produto:</label>
-                                <input type="text" id="import-product-name" placeholder="Nome do produto...">
+                                <input type="text" id="import-product-name" placeholder="Nome do produto..." onchange="updateSummaryIfNCMSelected()" oninput="updateSummaryIfNCMSelected()">
                             </div>
                             
                             <!-- NCM Section -->
                             <div class="ncm-section">
                                 <div class="input-group">
                                     <label>🔍 Buscar NCM:</label>
-                                    <input type="text" id="ncm-search" placeholder="Digite código NCM ou descrição...">
+                                    <input type="text" id="ncm-search" placeholder="Digite código NCM ou descrição..." oninput="searchNCMForImports(this.value)" onchange="updateSummaryIfNCMSelected()">
                                 </div>
                                 <div class="ncm-results" id="ncm-results" style="display: none;">
                                     <div class="ncm-list" id="ncm-list"></div>
@@ -183,12 +183,9 @@
                                         <div><strong>Código:</strong> <span id="selected-ncm-code">-</span></div>
                                         <div><strong>Descrição:</strong> <span id="selected-ncm-desc">-</span></div>
                                         <div><strong>Categoria:</strong> <span id="selected-ncm-category">-</span></div>
-                                        <div class="tax-preview">
+                                        <div class="tax-preview" id="selected-ncm-tax-preview">
                                             <strong>Impostos: </strong>
-                                            II: <span id="selected-ncm-ii">0</span>% | 
-                                            IPI: <span id="selected-ncm-ipi">0</span>% | 
-                                            PIS/COFINS: <span id="selected-ncm-pis">0</span>% | 
-                                            ICMS: <span id="selected-ncm-icms">0</span>%
+                                            <span id="selected-ncm-taxes-list">Nenhum imposto configurado</span>
                                         </div>
                                     </div>
                                     <button class="btn btn-sm btn-secondary" onclick="clearSelectedNCM()">Limpar NCM</button>
@@ -197,18 +194,23 @@
                             
                             <div class="input-row">
                                 <div class="input-group">
-                                    <label>💰 Valor de Compra Total (USD):</label>
-                                    <input type="number" id="import-cost-usd" step="0.01" placeholder="0.00" onchange="calculateCIF()">
+                                    <label>💰 Custo China (USD) - Referência:</label>
+                                    <input type="number" id="import-real-cost-usd" step="0.01" placeholder="0.00" onchange="updateSummaryImmediate()" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>📋 Valor Declarado (USD) - Para Cálculos:</label>
+                                    <input type="number" id="import-cost-usd" step="0.01" placeholder="0.00" onchange="calculateCIF(); updateTaxPreview(); updateSummaryImmediate()" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()">
                                 </div>
                                 
                                 <div class="input-group">
                                     <label>⚖️ Peso Total (kg):</label>
-                                    <input type="number" id="import-total-weight" step="0.01" placeholder="0.00" onchange="calculateCIF()">
+                                    <input type="number" id="import-total-weight" step="0.01" placeholder="0.00" onchange="calculateCIF(); updateTaxPreview(); updateSummaryImmediate()" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()">
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label>📦 Quantidade:</label>
-                                    <input type="number" id="import-quantity" placeholder="1">
+                                    <label>📦 Quantidade Total:</label>
+                                    <input type="number" id="import-quantity" placeholder="1" onchange="updateSummaryImmediate()" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()">
                                 </div>
                             </div>
                             
@@ -248,7 +250,12 @@
                             <div class="input-row">
                                 <div class="input-group">
                                     <label>💱 Taxa USD → BRL:</label>
-                                    <input type="number" id="import-usd-rate" step="0.01" value="5.50" placeholder="5.50">
+                                    <input type="number" id="import-usd-rate" step="0.01" value="5.50" placeholder="5.50" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()" onchange="updateTaxPreview(); updateSummaryImmediate()">
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label>🇵🇾 Taxa USD → Guarani:</label>
+                                    <input type="number" id="import-usd-guarani-rate" step="1" value="7500" placeholder="7500" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()" onchange="updateSummaryImmediate()">
                                 </div>
                             </div>
                             
@@ -259,60 +266,34 @@
                                 <p><strong>Base CIF:</strong> Custo + Seguro + Frete</p>
                             </div>
                             
-                            <div class="input-row">
-                                <div class="input-group">
-                                    <label>Imposto de Importação (%):</label>
-                                    <input type="number" id="import-tax" step="0.01" value="14" placeholder="14">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <label>IPI (%):</label>
-                                    <input type="number" id="import-ipi" step="0.01" value="15" placeholder="15">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <label>PIS/COFINS (%):</label>
-                                    <input type="number" id="import-pis-cofins" step="0.01" value="9.25" placeholder="9.25">
+                            <div id="ncm-taxes-display" class="ncm-taxes-container">
+                                <div class="no-ncm-selected">
+                                    <p>⚠️ Selecione um NCM acima para ver os impostos aplicáveis</p>
+                                    <p class="small-text">Os impostos serão calculados automaticamente baseados no NCM escolhido</p>
                                 </div>
                             </div>
                             
                             <div class="input-row">
                                 <div class="input-group">
-                                    <label>ICMS (%):</label>
-                                    <input type="number" id="import-icms" step="0.01" value="18" placeholder="18">
+                                    <label>Despachante (USD):</label>
+                                    <input type="number" id="import-customs-broker" step="0.01" value="44" placeholder="44.00" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()" onchange="updateSummaryIfNCMSelected()">
                                 </div>
                                 
                                 <div class="input-group">
-                                    <label>Despachante (R$):</label>
-                                    <input type="number" id="import-customs-broker" step="0.01" value="500" placeholder="500.00">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <label>Outras Despesas (R$):</label>
-                                    <input type="number" id="import-other-costs" step="0.01" placeholder="0.00">
+                                    <label>Outras Despesas (USD):</label>
+                                    <input type="number" id="import-other-costs" step="0.01" placeholder="0.00" oninput="convertCommaToPoint(this); updateSummaryIfNCMSelected()" onchange="updateSummaryIfNCMSelected()">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Margem de Lucro -->
+                    <!-- Resumo de Importação -->
                     <div class="import-section">
-                        <h3>📈 Margem de Lucro</h3>
-                        <div class="imports-inputs">
-                            <div class="input-row">
-                                <div class="input-group">
-                                    <label>Margem Desejada (%):</label>
-                                    <input type="number" id="import-margin" step="0.01" value="40" placeholder="40">
-                                </div>
-                                
-                                <div class="input-group">
-                                    <label>Comissão ML (%):</label>
-                                    <select id="import-ml-commission">
-                                        <option value="12">12% (ML Clássico)</option>
-                                        <option value="17">17% (ML Premium)</option>
-                                        <option value="15">15% (Personalizado)</option>
-                                    </select>
-                                </div>
+                        <h3>📋 Resumo de Importação</h3>
+                        <div class="import-summary" id="import-summary-display">
+                            <div class="summary-message">
+                                <p>ℹ️ Preencha os dados acima e selecione um NCM para ver o resumo completo</p>
+                                <p class="small-text">O resumo será calculado automaticamente com todos os custos em USD e BRL</p>
                             </div>
                         </div>
                     </div>
@@ -503,100 +484,16 @@
                         </div>
                         
                         <!-- Tax Configuration Section -->
-                        <h4>💰 Configuração de Impostos (até 5 tipos)</h4>
-                        
-                        <!-- Tax 1 -->
-                        <div class="tax-config-row">
-                            <div class="form-group">
-                                <label>Imposto 1 - Nome:</label>
-                                <input type="text" id="new-ncm-tax1-name" placeholder="Ex: Imposto Importação" value="Imposto Importação">
+                        <div class="tax-configuration">
+                            <div class="tax-header">
+                                <h4>💰 Configuração de Impostos</h4>
+                                <button type="button" class="btn btn-sm btn-success" id="add-tax-btn" onclick="addTaxField()">
+                                    ➕ Adicionar Imposto
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label>Taxa (%):</label>
-                                <input type="number" id="new-ncm-tax1-rate" step="0.01" value="16" min="0" max="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo:</label>
-                                <select id="new-ncm-tax1-type">
-                                    <option value="percent">Percentual</option>
-                                    <option value="fixed">Valor Fixo</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Tax 2 -->
-                        <div class="tax-config-row">
-                            <div class="form-group">
-                                <label>Imposto 2 - Nome:</label>
-                                <input type="text" id="new-ncm-tax2-name" placeholder="Ex: IPI" value="IPI">
-                            </div>
-                            <div class="form-group">
-                                <label>Taxa (%):</label>
-                                <input type="number" id="new-ncm-tax2-rate" step="0.01" value="0" min="0" max="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo:</label>
-                                <select id="new-ncm-tax2-type">
-                                    <option value="percent">Percentual</option>
-                                    <option value="fixed">Valor Fixo</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Tax 3 -->
-                        <div class="tax-config-row">
-                            <div class="form-group">
-                                <label>Imposto 3 - Nome:</label>
-                                <input type="text" id="new-ncm-tax3-name" placeholder="Ex: PIS/COFINS" value="PIS/COFINS">
-                            </div>
-                            <div class="form-group">
-                                <label>Taxa (%):</label>
-                                <input type="number" id="new-ncm-tax3-rate" step="0.01" value="9.25" min="0" max="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo:</label>
-                                <select id="new-ncm-tax3-type">
-                                    <option value="percent">Percentual</option>
-                                    <option value="fixed">Valor Fixo</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Tax 4 -->
-                        <div class="tax-config-row">
-                            <div class="form-group">
-                                <label>Imposto 4 - Nome:</label>
-                                <input type="text" id="new-ncm-tax4-name" placeholder="Ex: ICMS" value="ICMS">
-                            </div>
-                            <div class="form-group">
-                                <label>Taxa (%):</label>
-                                <input type="number" id="new-ncm-tax4-rate" step="0.01" value="18" min="0" max="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo:</label>
-                                <select id="new-ncm-tax4-type">
-                                    <option value="percent">Percentual</option>
-                                    <option value="fixed">Valor Fixo</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- Tax 5 -->
-                        <div class="tax-config-row">
-                            <div class="form-group">
-                                <label>Imposto 5 - Nome:</label>
-                                <input type="text" id="new-ncm-tax5-name" placeholder="Ex: Taxa Extra (opcional)">
-                            </div>
-                            <div class="form-group">
-                                <label>Taxa (%):</label>
-                                <input type="number" id="new-ncm-tax5-rate" step="0.01" value="0" min="0" max="100">
-                            </div>
-                            <div class="form-group">
-                                <label>Tipo:</label>
-                                <select id="new-ncm-tax5-type">
-                                    <option value="percent">Percentual</option>
-                                    <option value="fixed">Valor Fixo</option>
-                                </select>
+                            
+                            <div id="tax-fields-container">
+                                <!-- Tax fields will be dynamically added here -->
                             </div>
                         </div>
                         

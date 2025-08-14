@@ -39,6 +39,18 @@ function createWindow() {
       ]
     },
     {
+      label: 'Editar',
+      submenu: [
+        { role: 'undo', label: 'Desfazer', accelerator: 'CmdOrCtrl+Z' },
+        { role: 'redo', label: 'Refazer', accelerator: 'CmdOrCtrl+Shift+Z' },
+        { type: 'separator' },
+        { role: 'cut', label: 'Recortar', accelerator: 'CmdOrCtrl+X' },
+        { role: 'copy', label: 'Copiar', accelerator: 'CmdOrCtrl+C' },
+        { role: 'paste', label: 'Colar', accelerator: 'CmdOrCtrl+V' },
+        { role: 'selectall', label: 'Selecionar Tudo', accelerator: 'CmdOrCtrl+A' }
+      ]
+    },
+    {
       label: 'Arquivo',
       submenu: [
         { 
@@ -49,11 +61,42 @@ function createWindow() {
           }
         }
       ]
+    },
+    {
+      label: 'Visualizar',
+      submenu: [
+        { role: 'reload', label: 'Recarregar' },
+        { role: 'forceReload', label: 'Forçar Recarregamento' },
+        { role: 'toggleDevTools', label: 'Ferramentas do Desenvolvedor' },
+        { type: 'separator' },
+        { role: 'resetZoom', label: 'Zoom Normal' },
+        { role: 'zoomIn', label: 'Aumentar Zoom' },
+        { role: 'zoomOut', label: 'Diminuir Zoom' },
+        { type: 'separator' },
+        { role: 'togglefullscreen', label: 'Tela Cheia' }
+      ]
     }
   ];
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
+
+  // Menu de contexto (clique direito)
+  const contextMenu = Menu.buildFromTemplate([
+    { role: 'cut', label: 'Recortar' },
+    { role: 'copy', label: 'Copiar' },
+    { role: 'paste', label: 'Colar' },
+    { type: 'separator' },
+    { role: 'selectall', label: 'Selecionar Tudo' },
+    { type: 'separator' },
+    { role: 'reload', label: 'Recarregar Página' },
+    { role: 'toggleDevTools', label: 'Inspecionar Elemento' }
+  ]);
+
+  // Adicionar menu de contexto
+  mainWindow.webContents.on('context-menu', (e, params) => {
+    contextMenu.popup(mainWindow, params.x, params.y);
+  });
 
   // DevTools para desenvolvimento
   if (config.app.devTools) {
