@@ -1,0 +1,85 @@
+name: Manual Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+        - windows
+        - mac
+        - both
+      version:
+        description: 'Version tag (optional)'
+        required: false
+        type: string
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    if: ${{ github.event.inputs.platform == 'windows' || github.event.inputs.platform == 'both' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: windows-build
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build Windows
+      run: npm run dist:win
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Windows Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: sactorium-windows-${{ github.event.inputs.version || github.run_number }}
+        path: |
+          dist/windows/*.exe
+          dist/windows/*.exe.blockmap
+        retention-days: 90
+
+  build-mac:
+    runs-on: macos-latest  
+    if: ${{ github.event.inputs.platform == 'mac' || github.event.inputs.platform == 'both' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: main
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build macOS
+      run: npm run dist
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload macOS Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: sactorium-mac-${{ github.event.inputs.version || github.run_number }}
+        path: |
+          dist/*.dmg
+          dist/*.dmg.blockmap
+        retention-days: 90
